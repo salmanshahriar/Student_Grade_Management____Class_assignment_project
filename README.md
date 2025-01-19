@@ -16,10 +16,4 @@ A C-based application for managing student grades, including features to add stu
 4. **Data Persistence**  
    Student data is saved to and loaded from a file named `students.txt`.
 
-## Grading System
-
-- **A**: Average >= 90
-- **B**: Average >= 75 and < 90
-- **C**: Average >= 50 and < 75
-- **F**: Average < 50
-
+Live presentation site: [https://student-grade-management.my.canva.site/](https://student-grade-management.my.canva.site/)
