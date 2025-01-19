@@ -2,6 +2,8 @@
 
 A C-based application for managing student grades, including features to add students, search for students, display top performers, and store student data in a file for persistence.
 
+Live presentation site: [https://student-grade-management.my.canva.site/](https://student-grade-management.my.canva.site/)
+
 ## Features
 
 1. **Add Student**  
@@ -16,4 +18,3 @@ A C-based application for managing student grades, including features to add stu
 4. **Data Persistence**  
    Student data is saved to and loaded from a file named `students.txt`.
 
-Live presentation site: [https://student-grade-management.my.canva.site/](https://student-grade-management.my.canva.site/)
