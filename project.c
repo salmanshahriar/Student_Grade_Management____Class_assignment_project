@@ -1,59 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 
-// structure for Student
 typedef struct {
     int id;
     char name[50];
-    float marks[5];
-    float average;
-    char grade;
+    float marks[4]; 
+    float average;  
+    char grade;   
 } Student;
 
-// Functions
-void addStudent(Student students[], int *count);
-void calculateAverageAndGrade(Student *student);
-void searchStudent(const Student students[], int count);
-void displayTopPerformers(const Student students[], int count);
-void saveToFile(const Student students[], int count);
-void loadFromFile(Student students[], int *count);
-
-int main() {
-    Student students[100];
-    int count = 0;
-    int choice;
-
-    loadFromFile(students, &count);
-
-    do {
-        printf("\n--- Student Grade Management Menu ---\n");
-        printf("1. Add Student\n");
-        printf("2. Search Student\n");
-        printf("3. Display Top 3 Performers\n");
-        printf("4. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-
-        if (choice == 1) {
-            addStudent(students, &count);
-        } else if (choice == 2) {
-            searchStudent(students, count);
-        } else if (choice == 3) {
-            displayTopPerformers(students, count);
-        } else if (choice == 4) {
-            printf("Exiting the program. Goodbye!\n");
-            saveToFile(students, count);
-        } else {
-            printf("Invalid choice. Try again.\n");
-        }
-
-    } while (choice != 4);
-
-    return 0;
-}
-
-// Adding student and their ID, Name, Marks for 5 subjects - Nafiz
-void addStudent(Student students[], int *count) {
+// Function to add a new student and calculate their average marks and grade - Salman
+void addStudentAndCalculate(Student students[], int *count) {
     printf("\n--- Add Student ---\n");
     Student newStudent;
 
@@ -62,38 +19,45 @@ void addStudent(Student students[], int *count) {
     printf("Enter student name: ");
     scanf(" %49[^\n]", newStudent.name);
 
-    printf("Enter marks for 5 subjects: \n");
-    for (int i = 0; i < 5; i++) {
-        printf("Subject %d: ", i + 1);
-        scanf("%f", &newStudent.marks[i]);
+    printf("Enter marks for the following subjects (0-100):\n");
+    printf("Physics: ");
+    scanf("%f", &newStudent.marks[0]);
+    printf("Math: ");
+    scanf("%f", &newStudent.marks[1]);
+    printf("EEE: ");
+    scanf("%f", &newStudent.marks[2]);
+    printf("CSE: ");
+    scanf("%f", &newStudent.marks[3]);
+
+    for (int i = 0; i < 4; i++) {
+        if (newStudent.marks[i] < 0 || newStudent.marks[i] > 100) {
+            printf("Invalid marks entered. Please enter marks between 0 and 100.\n");
+            return;
+        }
     }
 
-    calculateAverageAndGrade(&newStudent);
+    float total = 0;
+    for (int i = 0; i < 4; i++) {
+        total += newStudent.marks[i];
+    }
+    newStudent.average = total / 4; 
+
+    if (newStudent.average >= 90) {
+        newStudent.grade = 'A';
+    } else if (newStudent.average >= 75) {
+        newStudent.grade = 'B';
+    } else if (newStudent.average >= 50) {
+        newStudent.grade = 'C';
+    } else {
+        newStudent.grade = 'F';
+    }
+
     students[(*count)++] = newStudent;
 
     printf("Student added successfully!\n");
 }
 
-// Calculate average marks and grade for a student - Tanjim
-void calculateAverageAndGrade(Student *student) {
-    float total = 0;
-    for (int i = 0; i < 5; i++) {
-        total += student->marks[i];
-    }
-    student->average = total / 5;
-
-    if (student->average >= 90) {
-        student->grade = 'A';
-    } else if (student->average >= 75) {
-        student->grade = 'B';
-    } else if (student->average >= 50) {
-        student->grade = 'C';
-    } else {
-        student->grade = 'F';
-    }
-}
-
-// Search for a student by ID or name - Salman
+// Function to search for a student by ID or name - Nafiz
 void searchStudent(const Student students[], int count) {
     printf("\n--- Search Student ---\n");
     int id;
@@ -128,7 +92,7 @@ void searchStudent(const Student students[], int count) {
     }
 }
 
-// Display the top 3 performing students - Abid
+// Function to display the top 3 performing students - Tanjim
 void displayTopPerformers(const Student students[], int count) {
     printf("\n--- Top 3 Performers ---\n");
 
@@ -137,7 +101,8 @@ void displayTopPerformers(const Student students[], int count) {
         return;
     }
 
-    Student top3[3] = {{0}};
+    Student top3[3] = {{0, "", {0, 0, 0, 0}, 0.0, 'F'}, {0, "", {0, 0, 0, 0}, 0.0, 'F'}, {0, "", {0, 0, 0, 0}, 0.0, 'F'}};
+
     for (int i = 0; i < count; i++) {
         if (students[i].average > top3[0].average) {
             top3[2] = top3[1];
@@ -160,40 +125,74 @@ void displayTopPerformers(const Student students[], int count) {
     }
 }
 
-// Save student data to students.txt  - Salman
-void saveToFile(const Student students[], int count) {
-    FILE *file = fopen("students.txt", "w");
-    if (!file) {
-        printf("Could not open file for writing.\n");
-        return;
-    }
+// Function to save or load student data to/from students.txt - Abid
+void manageFile(Student students[], int *count, int save) {
+    FILE *file;
+    if (save) {
+        file = fopen("students.txt", "w");
+        if (!file) {
+            printf("Could not open file for writing.\n");
+            return;
+        }
 
-    fprintf(file, "%d\n", count);
-    for (int i = 0; i < count; i++) {
-        fprintf(file, "%d %s %.2f %.2f %.2f %.2f %.2f %c\n", 
-                students[i].id, students[i].name,
-                students[i].marks[0], students[i].marks[1], students[i].marks[2],
-                students[i].marks[3], students[i].marks[4], students[i].grade);
-    }
+        fprintf(file, "%d\n", *count);
+        for (int i = 0; i < *count; i++) {
+            fprintf(file, "%d %s %.2f %.2f %.2f %.2f %c\n", 
+                    students[i].id, students[i].name,
+                    students[i].marks[0], students[i].marks[1], students[i].marks[2],
+                    students[i].marks[3], students[i].grade);
+        }
 
-    fclose(file);
+        fclose(file);
+    } else {
+        file = fopen("students.txt", "r");
+        if (!file) {
+            printf("Could not open file for reading.\n");
+            return;
+        }
+
+        fscanf(file, "%d", count);
+        for (int i = 0; i < *count; i++) {
+            fscanf(file, "%d %49[^\n] %f %f %f %f %c", 
+                   &students[i].id, students[i].name,
+                   &students[i].marks[0], &students[i].marks[1], &students[i].marks[2],
+                   &students[i].marks[3], &students[i].grade);
+        }
+
+        fclose(file);
+    }
 }
 
-// Load student data from students.txt - Salman
-void loadFromFile(Student students[], int *count) {
-    FILE *file = fopen("students.txt", "r");
-    if (!file) {
-        return;
-    }
+int main() {
+    Student students[100]; 
+    int count = 0;         
+    int choice;
 
-    fscanf(file, "%d", count);
-    for (int i = 0; i < *count; i++) {
-        fscanf(file, "%d %49[^\n] %f %f %f %f %f %c", 
-               &students[i].id, students[i].name,
-               &students[i].marks[0], &students[i].marks[1], &students[i].marks[2],
-               &students[i].marks[3], &students[i].marks[4], &students[i].grade);
-        calculateAverageAndGrade(&students[i]); 
-    }
+    manageFile(students, &count, 0); 
 
-    fclose(file);
+    do {
+        printf("\n--- Student Grade Management Menu ---\n");
+        printf("1. Add Student\n");
+        printf("2. Search Student\n");
+        printf("3. Display Top 3 Performers\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) {
+            addStudentAndCalculate(students, &count); 
+        } else if (choice == 2) {
+            searchStudent(students, count); 
+        } else if (choice == 3) {
+            displayTopPerformers(students, count); 
+        } else if (choice == 4) {
+            printf("Exiting the program. Goodbye!\n");
+            manageFile(students, &count, 1);
+        } else {
+            printf("Invalid choice. Try again.\n");
+        }
+
+    } while (choice != 4);
+
+    return 0;
 }
